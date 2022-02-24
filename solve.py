@@ -20,8 +20,8 @@ def solve(input):
         # for each contributor
         for _ in range(int(nr_skills)):
             skill_name, skill_level = input.readline().strip().split(' ')
-            contributors[name].append((skill_name, skill_level))
-            roles[skill_name].append((name, skill_level)) # IMPROVE: SORT?
+            contributors[name].append((skill_name, int(skill_level)))
+            roles[skill_name].append((name, int(skill_level))) # IMPROVE: SORT?
 
     # for each project
     for _ in range(nr_projects):
@@ -37,7 +37,7 @@ def solve(input):
 
         for _ in range(int(nr_roles)):
             skill_name, skill_level = input.readline().strip().split(' ')
-            req_skills.append((skill_name, skill_level))
+            req_skills.append((skill_name, int(skill_level)))
 
         projects[name]['req_skills'] = req_skills
 
@@ -46,14 +46,16 @@ def solve(input):
     finalProjects = []
     for (name, data) in projects.items():
         chosenContributors = []
-        for req_skill in data['req_skills']:
+        chosenContributorSet = set()
+        for (skill_name, skill_level) in data['req_skills']:
             try:
-                (contributor, skill) = min([x for x in roles[req_skill] if x[1] >= req_skill[1]], key=lambda x: x[1])
+                (contributor, skill) = min([x for x in roles[skill_name] if x[1] >= skill_level and x[0] not in chosenContributorSet], key=lambda x: x[1])
                 chosenContributors.append(contributor)
+                chosenContributorSet.add(contributor)
             except ValueError:
                 break
-        if (len(chosenContributors) > 0):
-            finalProjects.append((project, chosenContributors))
+        if (len(chosenContributors) == data['nr_roles']):
+            finalProjects.append((name, chosenContributors))
 
     output = f"""{len(finalProjects)}"""
 
