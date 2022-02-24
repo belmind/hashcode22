@@ -21,12 +21,11 @@ def solve(input):
         for _ in range(int(nr_skills)):
             skill_name, skill_level = input.readline().strip().split(' ')
             contributors[name].append((skill_name, skill_level))
-            roles[skill_name].append((name, skill_level))
+            roles[skill_name].append((name, skill_level)) # IMPROVE: SORT?
 
     # for each project
     for _ in range(nr_projects):
         temp = input.readline().strip().split(' ')
-        print(temp)
         name, completion, score, best_before, nr_roles = temp
         projects[name] = {
             'completion': completion,
@@ -45,12 +44,16 @@ def solve(input):
     # Solution
 
     finalProjects = []
-    for (name, data) in projects:
+    for (name, data) in projects.items():
         chosenContributors = []
         for req_skill in data['req_skills']:
-            contributor = min([x for x in roles[req_skill] if x[1] >= req_skill[1]], lambda:)
-            chosenContributors.append(contributor)
-        finalProjects.append((project, chosenContributors))
+            try:
+                (contributor, skill) = min([x for x in roles[req_skill] if x[1] >= req_skill[1]], key=lambda x: x[1])
+                chosenContributors.append(contributor)
+            except ValueError:
+                break
+        if (len(chosenContributors) > 0):
+            finalProjects.append((project, chosenContributors))
 
     output = f"""{len(finalProjects)}"""
 
