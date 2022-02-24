@@ -44,39 +44,23 @@ def solve(input):
     # Solution
 
     finalProjects = []
-    skippedProjects = defaultdict(dict)
-    leveledUp = set()
     for (name, data) in projects.items():
         chosenContributors = []
         chosenContributorSet = set()
-        toLevelUp = set()
-        for (skill_name, req_skill_level) in data['req_skills']:
+        for (skill_name, required_skill_level) in data['req_skills']:
             try:
-                (contributor, contributor_skill_level) = min([x for x in roles[skill_name] if x[1] >= req_skill_level and x[0] not in chosenContributorSet], key=lambda x: x[1])
-                chosenContributors.append(contributor)
-                chosenContributorSet.add(contributor)
-                if contributor_skill_level == req_skill_level and contributor not in leveledUp:
-                    toLevelUp.add((contributor, skill_name, contributor_skill_level))
-            except ValueError:
-                skippedProjects[name] = data
-                break
-        if (len(chosenContributors) == data['nr_roles']):
-            finalProjects.append((name, chosenContributors))
-            for (contributor, skill_name, contributor_skill_level) in toLevelUp:
-                if contributor in toLevelUp:
-                    roles[skill_name].remove((contributor, contributor_skill_level))
-                    roles[skill_name].append((contributor, contributor_skill_level + 1))
-                    leveledUp.add(contributor)
-
-    for (name, data) in skippedProjects.items():
-        chosenContributors = []
-        chosenContributorSet = set()
-        for (skill_name, req_skill_level) in data['req_skills']:
-            try:
-                (contributor, contributor_skill_level) = min([x for x in roles[skill_name] if x[1] >= req_skill_level and x[0] not in chosenContributorSet], key=lambda x: x[1])
+                (contributor, contributor_skill_level) = min([x for x in roles[skill_name] if x[1] >= required_skill_level and x[0] not in chosenContributorSet], key=lambda x: x[1])
                 chosenContributors.append(contributor)
                 chosenContributorSet.add(contributor)
             except ValueError:
+                for chosenContributor in chosenContributors:
+                    for (contributor_skill_name, contributor_skill_level) in contributors[chosenContributor]:
+                        if contributor_skill_name == skill_name and contributor_skill_level >= required_skill_level:
+                            potentialContributors = [x for x in roles[skill_name] if x[1] == required_skill_level - 1 and x[0] not in chosenContributorSet]
+                            if potentialContributors:
+                                (contributor, contributor_skill_level) = min(potentialContributors, key=lambda x: x[1])
+                                chosenContributors.append(contributor)
+                                chosenContributorSet.add(contributor)
                 break
         if (len(chosenContributors) == data['nr_roles']):
             finalProjects.append((name, chosenContributors))
