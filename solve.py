@@ -49,20 +49,24 @@ def solve(input):
     for (name, data) in projects.items():
         chosenContributors = []
         chosenContributorSet = set()
+        toLevelUp = set()
         for (skill_name, req_skill_level) in data['req_skills']:
             try:
                 (contributor, contributor_skill_level) = min([x for x in roles[skill_name] if x[1] >= req_skill_level and x[0] not in chosenContributorSet], key=lambda x: x[1])
                 chosenContributors.append(contributor)
                 chosenContributorSet.add(contributor)
                 if contributor_skill_level == req_skill_level and contributor not in leveledUp:
-                    roles[skill_name].remove((contributor, contributor_skill_level))
-                    roles[skill_name].append((contributor, contributor_skill_level + 1))
-                    leveledUp.add(contributor)
+                    toLevelUp.add((contributor, skill_name, contributor_skill_level))
             except ValueError:
                 skippedProjects[name] = data
                 break
         if (len(chosenContributors) == data['nr_roles']):
             finalProjects.append((name, chosenContributors))
+            for (contributor, skill_name, contributor_skill_level) in toLevelUp:
+                if contributor in toLevelUp:
+                    roles[skill_name].remove((contributor, contributor_skill_level))
+                    roles[skill_name].append((contributor, contributor_skill_level + 1))
+                    leveledUp.add(contributor)
 
     for (name, data) in skippedProjects.items():
         chosenContributors = []

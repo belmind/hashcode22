@@ -39,6 +39,5 @@ def main(file):
 
 if __name__ == '__main__':
     files = build_paths()
-    main(files[1])
-    # for file in files:
-    #     main(file)
+    for file in files:
+        main(file)
