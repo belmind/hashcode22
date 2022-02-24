@@ -1,5 +1,4 @@
 from collections import defaultdict
-from multiprocessing.sharedctypes import Value
 
 
 # Solver that takes an input as a file object,
@@ -10,7 +9,7 @@ def solve(input):
     nr_projects = int(first_line[1])
 
     contributors = defaultdict(list)
-    projects = defaultdict(dict)
+    projects = []
     roles = defaultdict(list)
 
     # parsing contributors and skills
@@ -27,7 +26,8 @@ def solve(input):
     for _ in range(nr_projects):
         temp = input.readline().strip().split(' ')
         name, completion, score, best_before, nr_roles = temp
-        projects[name] = {
+        project = {
+            'name': name,
             'completion': completion,
             'score': score,
             'best_before': best_before,
@@ -39,20 +39,25 @@ def solve(input):
             skill_name, skill_level = input.readline().strip().split(' ')
             req_skills.append((skill_name, int(skill_level)))
 
-        projects[name]['req_skills'] = req_skills
+        project['req_skills'] = req_skills
+        projects.append(project)
 
     # Solution
 
     finalProjects = []
-    for (name, data) in projects.items():
+
+    sorted_projects = sorted(projects, key=lambda x: x['best_before'])
+    for project in sorted_projects:
         chosenContributors = []
         chosenContributorSet = set()
-        for (skill_name, required_skill_level) in data['req_skills']:
+        for (skill_name, required_skill_level) in project['req_skills']:
             try:
                 (contributor, contributor_skill_level) = min([x for x in roles[skill_name] if x[1] >= required_skill_level and x[0] not in chosenContributorSet], key=lambda x: x[1])
                 chosenContributors.append(contributor)
                 chosenContributorSet.add(contributor)
+
             except ValueError:
+                # Mentoring logic
                 for chosenContributor in chosenContributors:
                     for (contributor_skill_name, contributor_skill_level) in contributors[chosenContributor]:
                         if contributor_skill_name == skill_name and contributor_skill_level >= required_skill_level:
@@ -62,8 +67,9 @@ def solve(input):
                                 chosenContributors.append(contributor)
                                 chosenContributorSet.add(contributor)
                 break
-        if (len(chosenContributors) == data['nr_roles']):
-            finalProjects.append((name, chosenContributors))
+
+        if (len(chosenContributors) == project['nr_roles']):
+            finalProjects.append((project['name'], chosenContributors))
 
     output = f"""{len(finalProjects)}"""
 

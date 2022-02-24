@@ -14,6 +14,7 @@ IGNORE = set([
     'README.md',
     'hashcode22.zip',
     'zip_dir.py',
+    'venv'
 ])
 
 
