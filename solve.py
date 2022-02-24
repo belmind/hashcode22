@@ -11,6 +11,7 @@ def solve(input):
 
     contributors = defaultdict(list)
     projects = defaultdict(dict)
+    roles = defaultdict(list)
 
     # parsing contributors and skills
     for _ in range(nr_contributors):
@@ -20,6 +21,7 @@ def solve(input):
         for _ in range(int(nr_skills)):
             skill_name, skill_level = input.readline().strip().split(' ')
             contributors[name].append((skill_name, skill_level))
+            roles[skill_name].append((name, skill_level))
 
     # for each project
     for _ in range(nr_projects):
@@ -40,6 +42,19 @@ def solve(input):
 
         projects[name]['req_skills'] = req_skills
 
-    print('contributors', contributors)
-    print('projects', projects)
-    return 'Not Yet Implemented'
+    # Solution
+
+    finalProjects = []
+    for (name, data) in projects:
+        chosenContributors = []
+        for req_skill in data['req_skills']:
+            contributor = min([x for x in roles[req_skill] if x[1] >= req_skill[1]], lambda:)
+            chosenContributors.append(contributor)
+        finalProjects.append((project, chosenContributors))
+
+    output = f"""{len(finalProjects)}"""
+
+    for (project, chosenContributors) in finalProjects:
+        output += f"""\n{project}\n{" ".join(chosenContributors)}"""
+
+    return output
